@@ -1,6 +1,6 @@
 # LWC Redux
 
-[![CI](https://github.com/dmitry-prohorov/lwc-redux/actions/workflows/ci.yml/badge.svg)](https://github.com/dmitry-prohorov/lwc-redux/actions/workflows/ci.yml)
+[![CI](https://github.com/SUMO-Scheduler/lwc-redux/actions/workflows/ci.yml/badge.svg)](https://github.com/SUMO-Scheduler/lwc-redux/actions/workflows/ci.yml)
 ![Coverage](https://img.shields.io/badge/coverage-99%25-brightgreen)
 ![Salesforce API](https://img.shields.io/badge/Salesforce%20API-67.0-00A1E0?logo=salesforce&logoColor=white)
 ![Redux](https://img.shields.io/badge/Redux-5-764ABC?logo=redux&logoColor=white)
