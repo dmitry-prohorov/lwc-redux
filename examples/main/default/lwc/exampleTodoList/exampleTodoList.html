@@ -1,0 +1,68 @@
+<template>
+    <div class="slds-box slds-theme_default">
+        <div class="slds-grid slds-grid_vertical-align-end slds-gutters_x-small">
+            <div class="slds-col slds-grow">
+                <lightning-input
+                    label="New todo"
+                    value={newTitle}
+                    data-id="title"
+                    onchange={handleTitleChange}
+                ></lightning-input>
+            </div>
+            <div class="slds-col slds-grow-none">
+                <lightning-button label="Add" variant="brand" data-id="add" onclick={handleAdd}></lightning-button>
+            </div>
+            <div class="slds-col slds-grow-none">
+                <lightning-button-icon
+                    icon-name="utility:refresh"
+                    alternative-text="Reload"
+                    data-id="reload"
+                    onclick={handleReload}
+                ></lightning-button-icon>
+            </div>
+        </div>
+
+        <template lwc:if={error}>
+            <p class="slds-text-color_error slds-var-m-top_x-small" data-id="error">{error}</p>
+        </template>
+
+        <lightning-radio-group
+            class="slds-var-m-vertical_small"
+            label="Show"
+            type="button"
+            options={filterOptions}
+            value={filter}
+            data-id="filter"
+            onchange={handleFilterChange}
+        ></lightning-radio-group>
+
+        <template lwc:if={isLoading}>
+            <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+        </template>
+
+        <template lwc:if={hasTodos}>
+            <ul class="slds-has-dividers_bottom-space">
+                <template for:each={todos} for:item="todo">
+                    <li key={todo.id} class="slds-item slds-grid slds-grid_vertical-align-center" data-todo>
+                        <lightning-input
+                            class="slds-col slds-grow"
+                            type="checkbox"
+                            label={todo.title}
+                            checked={todo.completed}
+                            data-id={todo.id}
+                            onchange={handleToggle}
+                        ></lightning-input>
+                        <lightning-button-icon
+                            icon-name="utility:delete"
+                            variant="bare"
+                            alternative-text="Remove"
+                            data-id={todo.id}
+                            onclick={handleRemove}
+                        ></lightning-button-icon>
+                    </li>
+                </template>
+            </ul>
+        </template>
+        <p class="slds-text-color_weak slds-var-m-top_small" data-id="stats">{statsLabel}</p>
+    </div>
+</template>

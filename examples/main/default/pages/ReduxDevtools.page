@@ -1,0 +1,75 @@
+<!--
+    Hosts the LWC Redux examples outside of Lightning Experience (Lightning Out) and bridges the
+    provider to the Redux DevTools browser extension:
+    https://github.com/reduxjs/redux-devtools/tree/main/extension
+
+    The same script can be reused for any component tree that contains <c-redux-provider use-devtools>.
+-->
+<apex:page showHeader="false" sidebar="false" standardStylesheets="false" docType="html-5.0" title="LWC Redux DevTools">
+    <apex:includeLightning />
+    <div id="app"></div>
+
+    <script>
+        (function () {
+            var container = document.getElementById('app');
+            var extension = window.__REDUX_DEVTOOLS_EXTENSION__;
+            var devtools = extension && extension.connect({ name: 'LWC Redux examples' });
+            var provider;
+            var unsubscribe;
+
+            if (!devtools) {
+                console.warn('Redux DevTools extension is not installed or is disabled for this page.');
+            }
+
+            // Messages from the extension (time travel, dispatching actions from the monitor)
+            function onDevtoolsMessage(message) {
+                if (!provider) {
+                    return;
+                }
+                if (message.type === 'DISPATCH' && message.payload) {
+                    var type = message.payload.type;
+                    if (type === 'JUMP_TO_ACTION' || type === 'JUMP_TO_STATE') {
+                        // handled by the devtools enhancer of <c-redux-provider use-devtools>
+                        provider.dispatch(message);
+                    }
+                } else if (message.type === 'ACTION' && message.payload) {
+                    var action = typeof message.payload === 'string' ? JSON.parse(message.payload) : message.payload;
+                    provider.dispatch(action);
+                }
+            }
+
+            // The provider dispatches composed events, so the element can be found in the event path
+            function findProvider(event) {
+                var path = event.composedPath ? event.composedPath() : [];
+                for (var i = 0; i < path.length; i++) {
+                    if (path[i].localName === 'c-redux-provider') {
+                        return path[i];
+                    }
+                }
+                return undefined;
+            }
+
+            container.addEventListener('reduxprovider__connect', function (event) {
+                provider = findProvider(event);
+                if (devtools) {
+                    devtools.init(event.detail.state);
+                    unsubscribe = devtools.subscribe(onDevtoolsMessage);
+                }
+            });
+
+            container.addEventListener('reduxprovider__action', function (event) {
+                devtools && devtools.send(event.detail.action, event.detail.state);
+            });
+
+            container.addEventListener('reduxprovider__disconnect', function () {
+                unsubscribe && unsubscribe();
+                devtools && extension.disconnect && extension.disconnect();
+                provider = undefined;
+            });
+
+            $Lightning.use('c:reduxExamplesOutApp', function () {
+                $Lightning.createComponent('c:reduxExamples', {}, 'app');
+            });
+        })();
+    </script>
+</apex:page>

@@ -112,6 +112,13 @@ export function getModuleManager(middlewareManager, extensions, advancedCombineR
                 _dispatchActions(mdl.initialActions ? [moduleAddedAction, ...mdl.initialActions] : [moduleAddedAction]);
             });
         },
+        connect: (modules) => {
+            if (!modules) {
+                return;
+            }
+
+            modules.forEach((mdl) => mdl.connectActions && _dispatchActions(mdl.connectActions));
+        },
         remove: (modulesToRemove) => {
             if (!modulesToRemove) {
                 return;

@@ -16,7 +16,8 @@ export function createStore(moduleStoreSettings, ...initialModules) {
 
     const extensionMiddleware = extensions.reduce((mw, p) => {
         if (p.middleware) {
-            mw.push(...p.middleware);
+            // extensions may provide a single middleware (redux-eggs format) or an array of them
+            mw.push(...[].concat(p.middleware));
         }
 
         return mw;

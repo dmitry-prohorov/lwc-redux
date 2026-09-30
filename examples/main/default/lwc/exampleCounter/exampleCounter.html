@@ -1,0 +1,21 @@
+<template>
+    <div class="slds-box slds-theme_default">
+        <p class="slds-text-title_caps">{label}</p>
+        <p class="slds-text-heading_large slds-var-m-vertical_small" data-id="count">{count}</p>
+        <lightning-input
+            type="number"
+            label="Step"
+            value={step}
+            min="1"
+            data-id="step"
+            onchange={handleStepChange}
+        ></lightning-input>
+        <div class="slds-var-m-top_small">
+            <lightning-button-group>
+                <lightning-button label="-" data-id="decrement" onclick={handleDecrement}></lightning-button>
+                <lightning-button label="+" data-id="increment" onclick={handleIncrement}></lightning-button>
+                <lightning-button label="Reset" data-id="reset" onclick={handleReset}></lightning-button>
+            </lightning-button-group>
+        </div>
+    </div>
+</template>

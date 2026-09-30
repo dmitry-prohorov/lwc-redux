@@ -1,0 +1,69 @@
+<template>
+    <!--
+        One root provider for the whole app. Store-wide features (thunk, saga, observable, devtools) are
+        configured by the first provider that creates the root store.
+    -->
+    <c-redux-provider
+        use-thunk
+        use-saga
+        use-observable
+        use-devtools
+        modules={modules}
+        onreduxprovider__connect={handleConnect}
+        onreduxprovider__action={handleAction}
+    >
+        <div class="slds-grid slds-wrap slds-gutters">
+            <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-3">
+                <lightning-card title="LWC Redux examples" icon-name="standard:process">
+                    <div class="slds-var-p-horizontal_medium">
+                        <lightning-tabset>
+                            <lightning-tab label="Counter">
+                                <p class="slds-var-m-bottom_small">
+                                    A Redux Toolkit slice. The module is added when the component connects and removed
+                                    when you leave the tab, so the value is reset.
+                                </p>
+                                <c-example-counter></c-example-counter>
+                            </lightning-tab>
+                            <lightning-tab label="Todos (thunk)">
+                                <p class="slds-var-m-bottom_small">
+                                    createAsyncThunk, createEntityAdapter and createSelector. The module is registered
+                                    by the provider, so the list survives tab switches.
+                                </p>
+                                <c-example-todo-list></c-example-todo-list>
+                            </lightning-tab>
+                            <lightning-tab label="Search (saga)">
+                                <p class="slds-var-m-bottom_small">
+                                    A debounced search with takeLatest. The saga runs only while the component is on the
+                                    page.
+                                </p>
+                                <c-example-saga-search></c-example-saga-search>
+                            </lightning-tab>
+                            <lightning-tab label="Timer (RxJS)">
+                                <p class="slds-var-m-bottom_small">
+                                    A countdown driven by redux-observable epics: interval, switchMap, takeUntil and
+                                    withLatestFrom. The epics stop when you leave the tab.
+                                </p>
+                                <c-example-rxjs-timer></c-example-rxjs-timer>
+                            </lightning-tab>
+                            <lightning-tab label="Undo / redo">
+                                <p class="slds-var-m-bottom_small">A reducer wrapped with redux-undo.</p>
+                                <c-example-undo-counter></c-example-undo-counter>
+                            </lightning-tab>
+                            <lightning-tab label="Local stores">
+                                <p class="slds-var-m-bottom_small">
+                                    Nested providers with <code>local-store</code> create isolated stores.
+                                </p>
+                                <c-example-local-store></c-example-local-store>
+                            </lightning-tab>
+                        </lightning-tabset>
+                    </div>
+                </lightning-card>
+            </div>
+            <template lwc:if={showActionLog}>
+                <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3">
+                    <c-example-action-log entries={entries} state={state}></c-example-action-log>
+                </div>
+            </template>
+        </div>
+    </c-redux-provider>
+</template>

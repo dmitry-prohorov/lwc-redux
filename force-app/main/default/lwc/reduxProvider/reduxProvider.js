@@ -1,22 +1,26 @@
 import { LightningElement, api } from 'lwc';
+import REDUX_LOGGER from '@salesforce/label/c.REDUX_LOGGER';
 import {
     REGISTER_REDUX_COMPONENT_EVENT,
     REDUX_COMPONENT_NAME_PROP,
     REDUX_UNSUBSCRIBE_NAME_PROP,
-    REDUX_REMOVE_MODULE_NAME_PROP
+    REDUX_REMOVE_MODULE_NAME_PROP,
+    REDUX_ADD_MODULE_NAME_PROP
 } from 'c/reduxConstants';
 
 import mapDispatchToPropsFactories from './mapDispatchToProps';
 import mapStateToPropsFactories from './mapStateToProps';
 import { match } from './utils';
-import { createStore } from 'c/reduxDynamicModulesCore';
-import { getSagaExtension } from 'c/reduxDynamicModulesSagaExtension';
 import { getLoggerExtension } from 'c/reduxDynamicModulesLoggerExtension';
 import { getThunkExtension } from 'c/reduxDynamicModulesThunkExtension';
-import { getObservableExtension } from 'c/reduxDynamicModulesObservableExtension';
-import { devtoolsEnhancer, getDevtoolsExtension } from './devtools';
+import { getDevtoolsExtension } from './devtools';
+import { createInitialStateCombiner } from './initialState';
+import { getSagaExtension, getObservableExtension, createStore } from 'c/reduxEggs';
 
-let _store;
+const LOGGER_ENABLED = REDUX_LOGGER === 'true';
+
+let uid = 0;
+let _store = {};
 export default class ReduxProvider extends LightningElement {
     @api useThunk = false;
     @api useSaga = false;
@@ -24,6 +28,7 @@ export default class ReduxProvider extends LightningElement {
     @api useDevtools = false;
     @api useLogger = false;
     @api disableCleanupOnDisconnect = false;
+    @api localStore = false;
 
     @api
     get modules() {
@@ -36,9 +41,24 @@ export default class ReduxProvider extends LightningElement {
     @api initialState;
 
     @api dispatch(action) {
-        const { dispatch } = _store || {};
+        const { dispatch } = _store[this._getStoreName()] || {};
         dispatch && dispatch(action);
     }
+
+    @api addModules(modules) {
+        const { addEggs } = _store[this._getStoreName()] || {};
+
+        if (addEggs) {
+            return addEggs(modules);
+        }
+
+        return () => null;
+    }
+    @api getLocalStore() {
+        return _store[this.uniqueName];
+    }
+
+    uniqueName = `redux_provider_${++uid}`;
 
     connectedCallback() {
         this.connected = true;
@@ -83,32 +103,27 @@ export default class ReduxProvider extends LightningElement {
     }
 
     _createStore(initialModules) {
-        const { useThunk, useSaga, useObservable, useLogger, initialState = {}, useDevtools } = this;
+        const { useThunk, useSaga, useObservable, initialState = {}, useDevtools } = this;
         const enhancers = [];
         const extensions = [
             useThunk && getThunkExtension(),
-            useLogger && getLoggerExtension(),
+            LOGGER_ENABLED && getLoggerExtension(),
             useSaga && getSagaExtension(),
             useObservable && getObservableExtension(),
             useDevtools && getDevtoolsExtension(() => this)
         ].filter((e) => e);
 
-        if (useDevtools) {
-            enhancers.push(devtoolsEnhancer);
-        }
-
-        _store = createStore(
-            {
-                initialState,
-                extensions,
-                enhancers
-            },
-            ...initialModules
-        );
+        const store = createStore({
+            reducerCombiner: createInitialStateCombiner(initialState),
+            extensions,
+            enhancers
+        });
+        store.addEggs(initialModules);
+        _store[this._getStoreName()] = store;
 
         this.dispatchEvent(
             new CustomEvent('reduxprovider__connect', {
-                detail: { state: _store.getState() },
+                detail: { state: _store[this._getStoreName()].getState() },
                 composed: true,
                 bubbles: true,
                 cancelable: true
@@ -125,28 +140,30 @@ export default class ReduxProvider extends LightningElement {
             return mdl;
         });
 
-        if (!_store) {
+        if (!_store[this._getStoreName()]) {
             this._createStore(initialModules);
         } else {
-            this._addedModules = _store.addModules(initialModules);
+            this._removeEggs = _store[this._getStoreName()].addEggs(initialModules);
         }
     }
 
     _cleanup() {
-        if (this._addedModules) {
-            this._addedModules.remove();
-            this._addedModules = undefined;
+        if (this._removeEggs) {
+            this._removeEggs();
+            this._removeEggs = undefined;
         }
     }
 
     _connect({ mapStateToProps, mapDispatchToProps, context, modules }) {
-        const { getState, subscribe, dispatch, addModules } = _store;
+        const { getState, subscribe, dispatch, addEggs } = _store[this._getStoreName()];
 
         const component = typeof context === 'function' ? context() : context;
 
+        component[REDUX_ADD_MODULE_NAME_PROP] = addEggs;
+
         if (modules) {
-            const removeModules = addModules(modules);
-            component[REDUX_REMOVE_MODULE_NAME_PROP] = removeModules.remove;
+            const removeModules = addEggs(modules);
+            component[REDUX_REMOVE_MODULE_NAME_PROP] = removeModules;
         }
 
         const initMapStateToProps = match(
@@ -165,10 +182,16 @@ export default class ReduxProvider extends LightningElement {
         if (mapStateToProps) {
             const handleStateChanges = () => {
                 if (!this._componentExist(component)) return;
-
-                const state = getState();
-                const attributeMap = initMapStateToProps(state, component);
-                Object.entries(attributeMap).forEach(([key, value]) => (component[key] = value));
+                try {
+                    const state = getState();
+                    const attributeMap = initMapStateToProps(state, component);
+                    Object.entries(attributeMap).forEach(([key, value]) => (component[key] = value));
+                } catch (e) {
+                    // exception catcher to handle internal issues in selectors
+                    console.error(e);
+                    // propagate exception to prevent code execution
+                    throw e;
+                }
             };
 
             handleStateChanges();
@@ -182,5 +205,9 @@ export default class ReduxProvider extends LightningElement {
     _componentExist(component) {
         const computedStyle = window.getComputedStyle(component.template.host);
         return computedStyle.display;
+    }
+
+    _getStoreName() {
+        return this.localStore ? this.uniqueName : 'ROOT';
     }
 }
