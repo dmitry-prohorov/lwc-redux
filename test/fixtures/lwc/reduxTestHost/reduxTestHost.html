@@ -1,0 +1,22 @@
+<template>
+    <c-redux-provider
+        local-store={localStore}
+        use-saga={useSaga}
+        use-thunk={useThunk}
+        use-observable={useObservable}
+        use-devtools={useDevtools}
+        disable-cleanup-on-disconnect={disableCleanupOnDisconnect}
+        modules={modules}
+        initial-state={initialState}
+    >
+        <template for:each={children} for:item="child">
+            <c-redux-test-child
+                key={child.key}
+                data-key={child.key}
+                map-state-to-props={child.mapStateToProps}
+                map-dispatch-to-props={child.mapDispatchToProps}
+                modules={child.modules}
+            ></c-redux-test-child>
+        </template>
+    </c-redux-provider>
+</template>
