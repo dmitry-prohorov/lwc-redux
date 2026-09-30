@@ -1,0 +1,21 @@
+<template>
+    <lightning-card title="Action log" icon-name="utility:bug">
+        <div class="slds-var-p-horizontal_medium">
+            <p class="slds-text-color_weak slds-var-m-bottom_small">
+                Reported by <code>use-devtools</code> through the <code>reduxprovider__action</code> event.
+            </p>
+            <template lwc:if={hasEntries}>
+                <ol class="slds-list_ordered">
+                    <template for:each={entries} for:item="entry">
+                        <li key={entry.id} data-entry>
+                            <code>{entry.type}</code>
+                            <span class="slds-text-color_weak"> {entry.payload}</span>
+                        </li>
+                    </template>
+                </ol>
+            </template>
+            <p class="slds-text-title_caps slds-var-m-top_medium">State</p>
+            <pre class="slds-scrollable" style="max-height: 20rem" data-id="state">{state}</pre>
+        </div>
+    </lightning-card>
+</template>

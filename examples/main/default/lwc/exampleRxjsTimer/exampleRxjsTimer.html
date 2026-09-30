@@ -1,0 +1,32 @@
+<template>
+    <div class="slds-box slds-theme_default">
+        <lightning-input
+            type="number"
+            label="Seconds"
+            min="1"
+            value={duration}
+            disabled={isRunning}
+            data-id="duration"
+            onchange={handleDurationChange}
+        ></lightning-input>
+        <p class="slds-text-heading_large slds-var-m-vertical_small" data-id="remaining">{remaining}</p>
+        <lightning-progress-bar value={progress} data-id="progress"></lightning-progress-bar>
+        <p class="slds-text-color_weak slds-var-m-vertical_small" data-id="status">Status: {status}</p>
+        <lightning-button-group>
+            <lightning-button
+                label={startLabel}
+                variant="brand"
+                disabled={isRunning}
+                data-id="start"
+                onclick={handleStart}
+            ></lightning-button>
+            <lightning-button
+                label="Pause"
+                disabled={isNotRunning}
+                data-id="pause"
+                onclick={handlePause}
+            ></lightning-button>
+            <lightning-button label="Reset" data-id="reset" onclick={handleReset}></lightning-button>
+        </lightning-button-group>
+    </div>
+</template>
