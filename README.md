@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/dmitry-prohorov/lwc-redux/actions/workflows/ci.yml/badge.svg)](https://github.com/dmitry-prohorov/lwc-redux/actions/workflows/ci.yml)
 ![Coverage](https://img.shields.io/badge/coverage-99%25-brightgreen)
-![Salesforce API](https://img.shields.io/badge/Salesforce%20API-64.0-00A1E0?logo=salesforce&logoColor=white)
+![Salesforce API](https://img.shields.io/badge/Salesforce%20API-67.0-00A1E0?logo=salesforce&logoColor=white)
 ![Redux](https://img.shields.io/badge/Redux-5-764ABC?logo=redux&logoColor=white)
 ![Redux Toolkit](https://img.shields.io/badge/Redux%20Toolkit-2-764ABC?logo=redux&logoColor=white)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io)
@@ -708,7 +708,7 @@ Things to know:
 - **New:** `local-store`, `addModules()`, `getLocalStore()`, `ReduxMixin.AddModules`, `ReduxMixin.Unsubscribe` (the
   misspelled `ReduxMixin.Unubscribe` was removed), `c/reduxToolkit`, `c/reduxUndo`, `c/reduxEggs`,
   `c/reduxLwcCommunicationService`, and devtools time travel.
-- `c/reselect` is Reselect 5. The metadata API version is 64.0.
+- `c/reselect` is Reselect 5. The metadata API version is 67.0.
 - **Fixes:** `initial-state` seeds each module's state when the module is first added (before, redux-eggs dropped the
   preloaded state). `provider.addModules()` works with the redux-eggs store. `c/reduxObservable` works with the bundled
   RxJS 6. The legacy `createStore` accepts extensions that return a single middleware. DevTools time-travel messages are
