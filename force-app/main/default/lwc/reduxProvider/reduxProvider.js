@@ -15,7 +15,7 @@ import { getLoggerExtension } from 'c/reduxDynamicModulesLoggerExtension';
 import { getThunkExtension } from 'c/reduxDynamicModulesThunkExtension';
 import { getDevtoolsExtension } from './devtools';
 import { createInitialStateCombiner } from './initialState';
-import { getSagaExtension, createStore } from 'c/reduxEggs';
+import { getSagaExtension, getObservableExtension, createStore } from 'c/reduxEggs';
 
 const LOGGER_ENABLED = REDUX_LOGGER === 'true';
 
@@ -103,12 +103,13 @@ export default class ReduxProvider extends LightningElement {
     }
 
     _createStore(initialModules) {
-        const { useThunk, useSaga, initialState = {}, useDevtools } = this;
+        const { useThunk, useSaga, useObservable, initialState = {}, useDevtools } = this;
         const enhancers = [];
         const extensions = [
             useThunk && getThunkExtension(),
             LOGGER_ENABLED && getLoggerExtension(),
             useSaga && getSagaExtension(),
+            useObservable && getObservableExtension(),
             useDevtools && getDevtoolsExtension(() => this)
         ].filter((e) => e);
 
