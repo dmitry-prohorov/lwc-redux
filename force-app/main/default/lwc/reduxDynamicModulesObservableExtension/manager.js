@@ -1,5 +1,5 @@
-import { getObjectRefCounter } from "c/reduxDynamicModulesCore";
-import { Subject, operators } from "c/rxjs";
+import { getObjectRefCounter } from 'c/reduxDynamicModulesCore';
+import { Subject, operators } from 'c/rxjs';
 const { ignoreElements, switchMap } = operators;
 
 /**
@@ -22,7 +22,7 @@ export function getEpicManager(epicMiddleware) {
          * minor worry.
          */
         add(epics = []) {
-            epics.forEach(epic => {
+            epics.forEach((epic) => {
                 const epicKey = epic.toString();
                 // Check if epic already exists
                 // eslint-disable-next-line no-prototype-builtins
@@ -57,7 +57,7 @@ export function getEpicManager(epicMiddleware) {
          * But we can try to replace real epic with empty epic, it works as we expected. This benefit is given by rxjs switchMap
          */
         remove(epics = []) {
-            epics.forEach(epic => {
+            epics.forEach((epic) => {
                 epicRefCounter.remove(epic);
 
                 const epicKey = epic.toString();
@@ -74,7 +74,7 @@ export function getEpicManager(epicMiddleware) {
         dispose() {
             runningEpics = null;
             epicRefCounter = undefined;
-        },
+        }
     };
 }
 
@@ -89,11 +89,11 @@ function createReplaceableWrapper() {
     const replaceableWrapper = (...args) =>
         epic$.pipe(
             // @ts-ignore
-            switchMap(epic => epic(...args))
+            switchMap((epic) => epic(...args))
         );
 
     // Expose a method. The wrapper can be replaced by real epic, and make it run
-    replaceableWrapper.replaceWith = epic => {
+    replaceableWrapper.replaceWith = (epic) => {
         epic$.next(epic);
         replaceableWrapper._epic = epic;
     };
@@ -107,7 +107,5 @@ function createReplaceableWrapper() {
  * This epic do nothing and we need it to be used for real epic replacement
  */
 function emptyEpic(action$) {
-    return action$.pipe(
-        ignoreElements()
-    );
+    return action$.pipe(ignoreElements());
 }

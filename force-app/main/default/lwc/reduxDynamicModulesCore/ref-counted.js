@@ -26,6 +26,9 @@ export function getRefCountedManager(
         const nonNullItems = input.filter((i) => i);
         const notAddedItems = nonNullItems.filter((i) => refCounter.getCount(i) === 0);
         manager.add(notAddedItems);
+        if (manager.connect) {
+            manager.connect(nonNullItems);
+        }
         nonNullItems.forEach(refCounter.add);
     };
 

@@ -240,6 +240,23 @@ function getMetaInfo(fn) {
 function getLocation(instrumented) {
   return instrumented[SAGA_LOCATION];
 }
+function compose() {
+  for (var _len = arguments.length, funcs = new Array(_len), _key = 0; _key < _len; _key++) {
+    funcs[_key] = arguments[_key];
+  }
+
+  if (funcs.length === 0) {
+    return arg => arg;
+  }
+
+  if (funcs.length === 1) {
+    return funcs[0];
+  }
+
+  return funcs.reduce((a, b) => function () {
+    return a(b(...arguments));
+  });
+}
 
 var BUFFER_OVERFLOW = "Channel's Buffer overflow!";
 var ON_OVERFLOW_THROW = 1;
@@ -377,14 +394,20 @@ var effectTypes = /*#__PURE__*/Object.freeze({
   SET_CONTEXT: SET_CONTEXT
 });
 
+var MAX_SIGNED_INT = 2147483647;
 function delayP(ms, val) {
   if (val === void 0) {
     val = true;
   }
 
+  // https://developer.mozilla.org/en-US/docs/Web/API/setTimeout#maximum_delay_value
+  if ( ms > MAX_SIGNED_INT) {
+    throw new Error('delay only supports a maximum value of ' + MAX_SIGNED_INT + 'ms');
+  }
+
   var timeoutId;
   var promise = new Promise(resolve => {
-    timeoutId = setTimeout(resolve, ms, val);
+    timeoutId = setTimeout(resolve, Math.min(MAX_SIGNED_INT, ms), val);
   });
 
   promise[CANCEL] = () => {
@@ -426,6 +449,11 @@ function take(patternOrChannel, multicastPattern) {
   }
 
   if (pattern(patternOrChannel)) {
+    if (notUndef(multicastPattern)) {
+      /* eslint-disable no-console */
+      console.warn("take(pattern) takes one argument but two were provided. Consider passing an array for listening to several action types");
+    }
+
     return makeEffect(TAKE, {
       pattern: patternOrChannel
     });
@@ -439,6 +467,11 @@ function take(patternOrChannel, multicastPattern) {
   }
 
   if (channel(patternOrChannel)) {
+    if (notUndef(multicastPattern)) {
+      /* eslint-disable no-console */
+      console.warn("take(channel) takes one argument but two were provided. Second argument is ignored.");
+    }
+
     return makeEffect(TAKE, {
       channel: patternOrChannel
     });
@@ -717,4 +750,4 @@ var delay =
 /*#__PURE__*/
 call.bind(null, delayP);
 
-export { shouldCancel as $, ALL as A, getMetaInfo as B, CHANNEL_END_TYPE as C, undef as D, createAllStyleChildCallbacks as E, FORK as F, GET_CONTEXT as G, SELF_CANCELLATION as H, createEmptyArray as I, JOIN as J, assignWithSymbols as K, makeIterator as L, MULTICAST as M, TERMINATE as N, shouldComplete as O, PUT as P, noop as Q, RACE as R, SAGA_ACTION as S, TAKE as T, flatMap as U, getLocation as V, TASK as W, TASK_CANCEL as X, createSetContextWarning as Y, object as Z, asyncIteratorSymbol as _, array as a, shouldTerminate as a0, IO as a1, logError as a2, wrapSagaDispatch as a3, identity as a4, channel as a5, _extends as a6, buffers as a7, SAGA_LOCATION as a8, detach as a9, take as aa, fork as ab, cancel as ac, call as ad, actionChannel as ae, sliding as af, delay as ag, race as ah, effectTypes as ai, takeMaybe as aj, put as ak, putResolve as al, all as am, apply as an, cps as ao, spawn as ap, join as aq, select as ar, cancelled as as, flush as at, getContext as au, setContext as av, stringableFunc as b, symbol as c, check as d, expanding as e, func as f, buffer as g, MATCH as h, none as i, internalErr as j, kTrue as k, CANCEL as l, CALL as m, notUndef as n, once as o, CPS as p, CANCEL$1 as q, remove as r, string as s, SELECT as t, ACTION_CHANNEL as u, CANCELLED as v, FLUSH as w, SET_CONTEXT as x, promise as y, iterator as z };
+export { shouldCancel as $, ALL as A, getMetaInfo as B, CHANNEL_END_TYPE as C, undef as D, createAllStyleChildCallbacks as E, FORK as F, GET_CONTEXT as G, SELF_CANCELLATION as H, createEmptyArray as I, JOIN as J, assignWithSymbols as K, makeIterator as L, MULTICAST as M, TERMINATE as N, shouldComplete as O, PUT as P, noop as Q, RACE as R, SAGA_ACTION as S, TAKE as T, flatMap as U, getLocation as V, TASK as W, TASK_CANCEL as X, createSetContextWarning as Y, object as Z, asyncIteratorSymbol as _, array as a, shouldTerminate as a0, IO as a1, logError as a2, compose as a3, wrapSagaDispatch as a4, identity as a5, channel as a6, _extends as a7, buffers as a8, SAGA_LOCATION as a9, detach as aa, take as ab, fork as ac, cancel as ad, call as ae, delay as af, actionChannel as ag, sliding as ah, race as ai, effectTypes as aj, takeMaybe as ak, put as al, putResolve as am, all as an, apply as ao, cps as ap, spawn as aq, join as ar, select as as, cancelled as at, flush as au, getContext as av, setContext as aw, stringableFunc as b, symbol as c, check as d, expanding as e, func as f, buffer as g, MATCH as h, none as i, internalErr as j, kTrue as k, CANCEL as l, CALL as m, notUndef as n, once as o, CPS as p, CANCEL$1 as q, remove as r, string as s, SELECT as t, ACTION_CHANNEL as u, CANCELLED as v, FLUSH as w, SET_CONTEXT as x, promise as y, iterator as z };

@@ -19,6 +19,6 @@ const loggerMiddleware = (store) => (next) => (action) => {
 
 export function getLoggerExtension() {
     return {
-        middleware: [loggerMiddleware]
+        middleware: loggerMiddleware
     };
 }

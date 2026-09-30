@@ -3,7 +3,8 @@ import {
     REDUX_COMPONENT_NAME_PROP,
     REDUX_DISPATCH_NAME_PROP,
     REDUX_UNSUBSCRIBE_NAME_PROP,
-    REDUX_REMOVE_MODULE_NAME_PROP
+    REDUX_REMOVE_MODULE_NAME_PROP,
+    REDUX_ADD_MODULE_NAME_PROP
 } from 'c/reduxConstants';
 
 const connect = Symbol('connecttoredux');
@@ -30,6 +31,7 @@ const ReduxMixin = (base) =>
             );
         }
         [disconnect]() {
+            this[unsubscribe]();
             if (this[REDUX_UNSUBSCRIBE_NAME_PROP]) {
                 this[REDUX_UNSUBSCRIBE_NAME_PROP]();
             }
@@ -49,7 +51,6 @@ const ReduxMixin = (base) =>
 
         disconnectedCallback() {
             this[disconnect]();
-            this[unsubscribe]();
         }
     };
 ReduxMixin.Connect = connect;
@@ -57,6 +58,7 @@ ReduxMixin.Name = REDUX_COMPONENT_NAME_PROP;
 ReduxMixin.Dispatch = REDUX_DISPATCH_NAME_PROP;
 ReduxMixin.Disconnect = disconnect;
 ReduxMixin.Subscribe = subscribe;
-ReduxMixin.Unubscribe = unsubscribe;
+ReduxMixin.Unsubscribe = unsubscribe;
+ReduxMixin.AddModules = REDUX_ADD_MODULE_NAME_PROP;
 
 export { ReduxMixin };
