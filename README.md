@@ -1,5 +1,12 @@
 # LWC Redux
 
+[![CI](https://github.com/dmitry-prohorov/lwc-redux/actions/workflows/ci.yml/badge.svg)](https://github.com/dmitry-prohorov/lwc-redux/actions/workflows/ci.yml)
+![Coverage](https://img.shields.io/badge/coverage-99%25-brightgreen)
+![Salesforce API](https://img.shields.io/badge/Salesforce%20API-64.0-00A1E0?logo=salesforce&logoColor=white)
+![Redux](https://img.shields.io/badge/Redux-5-764ABC?logo=redux&logoColor=white)
+![Redux Toolkit](https://img.shields.io/badge/Redux%20Toolkit-2-764ABC?logo=redux&logoColor=white)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io)
+
 Redux for Lightning Web Components on Salesforce.
 
 This library packages [Redux](https://redux.js.org/), [Redux Toolkit](https://redux-toolkit.js.org/),
